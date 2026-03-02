@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="FileOrganizer.Tests/FileOrganizer.Tests.csproj" />
+  <Project Path="FileOrganizer/FileOrganizer.csproj" />
+</Solution>

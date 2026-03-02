@@ -1,0 +1,38 @@
+﻿<Window x:Class="FileOrganizer.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="File Organizer" Height="450" Width="800">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+
+        <TextBox x:Name="SourceTextBox" IsReadOnly="True" Grid.Row="0" Grid.Column="0" Margin="0,0,10,10" VerticalAlignment="Center"/>
+        <Button x:Name="SelectSourceButton" Content="Select Source Folder" Grid.Row="0" Grid.Column="1" Width="150" Margin="0,0,0,10" Click="SelectSourceButton_Click"/>
+
+        <TextBox x:Name="DestTextBox" IsReadOnly="True" Grid.Row="1" Grid.Column="0" Margin="0,0,10,10" VerticalAlignment="Center"/>
+        <Button x:Name="SelectDestButton" Content="Select Destination Folder" Grid.Row="1" Grid.Column="1" Width="150" Margin="0,0,0,10" Click="SelectDestButton_Click"/>
+
+        <CheckBox x:Name="CopyModeCheckBox" Content="Copy Files (Leave Originals)" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,0,0,10"/>
+
+        <Button x:Name="AnalyzeButton" Content="Analyze (Generate Plan)" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,0,0,10" Click="AnalyzeButton_Click" Height="30"/>
+
+        <DataGrid x:Name="InstructionsDataGrid" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,0,0,10" AutoGenerateColumns="True" IsReadOnly="True" />
+
+        <ProgressBar x:Name="ActionProgressBar" Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" Height="20" Margin="0,0,0,10" Visibility="Collapsed" Minimum="0" Maximum="100"/>
+
+        <Button x:Name="ExecuteButton" Content="Execute Plan" Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" Height="40" Click="ExecuteButton_Click" IsEnabled="False" FontWeight="Bold"/>
+
+    </Grid>
+</Window>
