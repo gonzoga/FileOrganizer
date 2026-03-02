@@ -19,36 +19,44 @@ namespace FileOrganizer.Engines
                     Directory.CreateDirectory(destDir);
                 }
 
-                bool isCopyOp = isCopyMode || instruction.ActionType == ActionType.Copy;
-                
-                if (File.Exists(instruction.DestinationPath))
+                try
                 {
-                    DateTime sourceTime = File.GetLastWriteTimeUtc(instruction.SourcePath);
-                    DateTime destTime = File.GetLastWriteTimeUtc(instruction.DestinationPath);
+                    bool isCopyOp = isCopyMode || instruction.ActionType == ActionType.Copy;
+                    
+                    if (File.Exists(instruction.DestinationPath))
+                    {
+                        DateTime sourceTime = File.GetLastWriteTimeUtc(instruction.SourcePath);
+                        DateTime destTime = File.GetLastWriteTimeUtc(instruction.DestinationPath);
 
-                    if (sourceTime > destTime || instruction.ActionType == ActionType.Overwrite)
+                        if (sourceTime > destTime || instruction.ActionType == ActionType.Overwrite)
+                        {
+                            if (isCopyOp)
+                            {
+                                File.Copy(instruction.SourcePath, instruction.DestinationPath, overwrite: true);
+                            }
+                            else
+                            {
+                                File.Delete(instruction.DestinationPath);
+                                File.Move(instruction.SourcePath, instruction.DestinationPath);
+                            }
+                        }
+                    }
+                    else
                     {
                         if (isCopyOp)
                         {
-                            File.Copy(instruction.SourcePath, instruction.DestinationPath, overwrite: true);
+                            File.Copy(instruction.SourcePath, instruction.DestinationPath, overwrite: false);
                         }
                         else
                         {
-                            File.Delete(instruction.DestinationPath);
                             File.Move(instruction.SourcePath, instruction.DestinationPath);
                         }
                     }
                 }
-                else
+                catch (System.Exception)
                 {
-                    if (isCopyOp)
-                    {
-                        File.Copy(instruction.SourcePath, instruction.DestinationPath, overwrite: false);
-                    }
-                    else
-                    {
-                        File.Move(instruction.SourcePath, instruction.DestinationPath);
-                    }
+                    // Gracefully swallow unauthorized access, IO locks, or other file-level exceptions
+                    // to ensure the loop continues processing the rest of the plan.
                 }
 
                 processed++;
