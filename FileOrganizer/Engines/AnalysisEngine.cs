@@ -36,7 +36,8 @@ namespace FileOrganizer.Engines
                     targetFolder = _routingEngine.GetTargetFolder(file);
                 }
 
-                string destFilePath = Path.Combine(destDir, targetFolder, Path.GetFileName(file));
+                string relativePath = Path.GetRelativePath(sourceDir, file);
+                string destFilePath = Path.Combine(destDir, targetFolder, relativePath);
 
                 if (File.Exists(destFilePath))
                 {

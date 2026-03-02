@@ -1,46 +1,186 @@
 ﻿<Window x:Class="FileOrganizer.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="File Organizer" Height="450" Width="800">
-    <Grid Margin="10">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="Auto"/>
-        </Grid.ColumnDefinitions>
+        Title="File Organizer" Height="600" Width="1000"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        WindowStartupLocation="CenterScreen">
 
-        <TextBox x:Name="SourceTextBox" IsReadOnly="True" Grid.Row="0" Grid.Column="0" Margin="0,0,10,10" VerticalAlignment="Center"/>
-        <Button x:Name="SelectSourceButton" Content="Select Source Folder" Grid.Row="0" Grid.Column="1" Width="150" Margin="0,0,0,10" Click="SelectSourceButton_Click"/>
+    <!-- Window Border/DropShadow Simulation -->
+    <Border CornerRadius="8" Background="#F4F6F9" Margin="10">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="15" Direction="-90" RenderingBias="Quality" ShadowDepth="2" Color="#444444" Opacity="0.3"/>
+        </Border.Effect>
 
-        <TextBox x:Name="DestTextBox" IsReadOnly="True" Grid.Row="1" Grid.Column="0" Margin="0,0,10,10" VerticalAlignment="Center"/>
-        <Button x:Name="SelectDestButton" Content="Select Destination Folder" Grid.Row="1" Grid.Column="1" Width="150" Margin="0,0,0,10" Click="SelectDestButton_Click"/>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="280"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
 
-        <CheckBox x:Name="CopyModeCheckBox" Content="Copy Files (Leave Originals)" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,0,0,10"/>
+            <!-- LEFT SIDEBAR -->
+            <Border Grid.Column="0" Background="#4A78C2" CornerRadius="8,0,0,8">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
 
-        <Button x:Name="AnalyzeButton" Content="Analyze (Generate Plan)" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,0,0,10" Click="AnalyzeButton_Click" Height="30"/>
+                    <!-- Branding Header -->
+                    <StackPanel Grid.Row="0" Margin="25,40,25,20">
+                        <TextBlock Text="File Organizer" Foreground="White" FontSize="26" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                        <TextBlock Text="Local sorting utility." Foreground="#B0C8ED" FontSize="13"/>
+                        <Rectangle Height="1" Fill="#7BA1D9" Margin="0,25,0,0"/>
+                    </StackPanel>
 
-        <ProgressBar x:Name="ActionProgressBar" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" Height="20" Margin="0,0,0,10" Visibility="Collapsed" Minimum="0" Maximum="100"/>
+                    <!-- Mock Nav / Info Area -->
+                    <StackPanel Grid.Row="1" Margin="25,20,25,20">
+                        <TextBlock Text="EXECUTION PLAN" Foreground="#95B5E6" FontSize="12" FontWeight="Bold" Margin="0,0,0,15"/>
+                        <TextBlock Text="Status:" Foreground="White" FontSize="14" Margin="0,0,0,5"/>
+                        <TextBlock x:Name="StatusTextBlock" Text="Pending" Foreground="#D0E0F5" FontSize="18" FontWeight="Light" Margin="0,0,0,30"/>
+                        
+                        <Grid Margin="0,0,0,5">
+                            <TextBlock x:Name="ProgressLabelText" Text="Progress" Foreground="White" FontSize="12" HorizontalAlignment="Left" Visibility="Collapsed"/>
+                            <TextBlock x:Name="ProgressPercentText" Text="0%" Foreground="White" FontSize="12" HorizontalAlignment="Right" Visibility="Collapsed"/>
+                        </Grid>
+                        <ProgressBar x:Name="ActionProgressBar" Height="6" Visibility="Collapsed" Minimum="0" Maximum="100" BorderThickness="0" Background="#3D64A3" Foreground="#FFFFFF" Margin="0,0,0,15"/>
+                    </StackPanel>
 
-        <ListView x:Name="InstructionsListView" Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,0,0,10" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling">
-            <ListView.View>
-                <GridView>
-                    <GridViewColumn Header="Source Path" DisplayMemberBinding="{Binding SourcePath}" Width="350"/>
-                    <GridViewColumn Header="Destination Path" DisplayMemberBinding="{Binding DestinationPath}" Width="350"/>
-                    <GridViewColumn Header="Action" DisplayMemberBinding="{Binding ActionType}" Width="100"/>
-                </GridView>
-            </ListView.View>
-        </ListView>
+                    <!-- Execute Button Pinned to Bottom Left -->
+                    <Button x:Name="ExecuteButton" Grid.Row="2" Content="START SORTING" Height="50" Margin="25,0,25,40" 
+                            Click="ExecuteButton_Click" IsEnabled="False" FontWeight="Bold" FontSize="14">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Setter Property="Foreground" Value="White"/>
+                                <Setter Property="BorderBrush" Value="White"/>
+                                <Setter Property="BorderThickness" Value="1.5"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border CornerRadius="25" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="#5A88D2"/>
+                                                </Trigger>
+                                                <Trigger Property="IsEnabled" Value="False">
+                                                    <Setter Property="Opacity" Value="0.4"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                </Grid>
+            </Border>
 
-        <Button x:Name="ExecuteButton" Content="Execute Plan" Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" Height="40" Click="ExecuteButton_Click" IsEnabled="False" FontWeight="Bold"/>
+            <!-- MAIN CONTENT AREA -->
+            <Grid Grid.Column="1" Margin="30,40,30,30">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
 
-    </Grid>
+                <!-- Configuration Header -->
+                <Grid Grid.Row="0" Margin="0,0,0,25">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Text="Configuration" Foreground="#333333" FontSize="20" FontWeight="SemiBold" Grid.Row="0" Grid.ColumnSpan="2" Margin="0,0,0,15"/>
+
+                    <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,20,0">
+                        <TextBlock Text="Source Directory" Foreground="#777777" FontSize="12" Margin="0,0,0,5"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox x:Name="SourceTextBox" IsReadOnly="True" Height="35" VerticalContentAlignment="Center" Padding="10,0" BorderBrush="#DDDDDD" Background="White" FontSize="13"/>
+                            <Button x:Name="SelectSourceButton" Content="BROWSE" Grid.Column="1" Width="80" Margin="5,0,0,0" Click="SelectSourceButton_Click" Background="#E9ECEF" BorderThickness="0" Foreground="#555555" FontWeight="SemiBold"/>
+                        </Grid>
+
+                        <TextBlock Text="Destination Directory" Foreground="#777777" FontSize="12" Margin="0,15,0,5"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox x:Name="DestTextBox" IsReadOnly="True" Height="35" VerticalContentAlignment="Center" Padding="10,0" BorderBrush="#DDDDDD" Background="White" FontSize="13"/>
+                            <Button x:Name="SelectDestButton" Content="BROWSE" Grid.Column="1" Width="80" Margin="5,0,0,0" Click="SelectDestButton_Click" Background="#E9ECEF" BorderThickness="0" Foreground="#555555" FontWeight="SemiBold"/>
+                        </Grid>
+                        
+                        <CheckBox x:Name="CopyModeCheckBox" Content="Keep original files (Copy instead of Move)" FontSize="13" Foreground="#555555" Margin="0,15,0,0"/>
+                    </StackPanel>
+
+                    <Button x:Name="AnalyzeButton" Grid.Row="1" Grid.Column="1" Content="ANALYZE PLAN" Width="140" Height="40" VerticalAlignment="Bottom" Click="AnalyzeButton_Click" FontWeight="Bold" FontSize="13">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Background" Value="#4A78C2"/>
+                                <Setter Property="Foreground" Value="White"/>
+                                <Setter Property="BorderThickness" Value="0"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border CornerRadius="4" Background="{TemplateBinding Background}">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="#5A88D2"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                </Grid>
+
+                <!-- Data List View -->
+                <Border Grid.Row="1" Background="White" CornerRadius="8" Padding="10">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="5" Direction="-90" ShadowDepth="1" Color="#000000" Opacity="0.05"/>
+                    </Border.Effect>
+                    <ListView x:Name="InstructionsListView" BorderThickness="0" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling" Background="Transparent">
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="Padding" Value="5,10"/>
+                                <Setter Property="BorderBrush" Value="#F0F0F0"/>
+                                <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                                <Style.Triggers>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter Property="Background" Value="#F4F8FE"/>
+                                        <Setter Property="BorderBrush" Value="#F4F8FE"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="Source Path" DisplayMemberBinding="{Binding SourcePath}" Width="250"/>
+                                <GridViewColumn Header="Target Path" DisplayMemberBinding="{Binding DestinationPath}" Width="300"/>
+                                <GridViewColumn Header="Action" DisplayMemberBinding="{Binding ActionType}" Width="80"/>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                </Border>
+                
+                <!-- Custom Window Close Button (Top Right) -->
+                <Button Content="✕" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-25,-15,0" Width="30" Height="30" Click="CloseButton_Click" Background="Transparent" BorderThickness="0" Foreground="#999999" FontSize="16" FontWeight="Bold"/>
+
+            </Grid>
+        </Grid>
+    </Border>
 </Window>

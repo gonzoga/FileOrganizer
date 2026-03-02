@@ -44,6 +44,27 @@ namespace FileOrganizer.Tests
         }
 
         [Fact]
+        public async Task Analyze_NestedFile_PreservesRelativePath()
+        {
+            string subDir = Path.Combine(_sourceDir, "FolderA", "FolderB");
+            Directory.CreateDirectory(subDir);
+            string sourceFile = Path.Combine(subDir, "nested.mp4");
+            File.WriteAllText(sourceFile, "dummy");
+
+            var instructions = new List<FileTransferInstruction>();
+            await foreach (var item in _analysisEngine.AnalyzeAsync(_sourceDir, _destDir, isCopyMode: false))
+            {
+                instructions.Add(item);
+            }
+
+            Assert.Single(instructions);
+            var instruction = instructions.First();
+            string expectedRelative = Path.Combine("FolderA", "FolderB", "nested.mp4");
+            Assert.Equal(ActionType.Move, instruction.ActionType);
+            Assert.Equal(Path.Combine(_destDir, "Movies", expectedRelative), instruction.DestinationPath);
+        }
+
+        [Fact]
         public async Task Analyze_StandardTransferCopyMode_CreatesCopyInstruction()
         {
             string sourceFile = Path.Combine(_sourceDir, "test.jpg");

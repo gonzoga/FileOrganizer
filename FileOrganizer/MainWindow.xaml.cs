@@ -60,7 +60,11 @@ namespace FileOrganizer
                 AnalyzeButton.IsEnabled = false;
                 ExecuteButton.IsEnabled = false;
                 ActionProgressBar.Value = 0;
+                StatusTextBlock.Text = "Analyzing Files...";
                 ActionProgressBar.Visibility = Visibility.Visible;
+                ProgressLabelText.Visibility = Visibility.Visible;
+                ProgressPercentText.Visibility = Visibility.Visible;
+                ProgressPercentText.Text = "0%";
                 
                 _currentPlan.Clear();
                 InstructionsListView.ItemsSource = _currentPlan;
@@ -68,6 +72,7 @@ namespace FileOrganizer
                 var progress = new Progress<int>(percent => 
                 {
                     ActionProgressBar.Value = percent;
+                    ProgressPercentText.Text = $"{percent}%";
                 });
 
                 await foreach (var instruction in _analysisEngine.AnalyzeAsync(sourcePath, destPath, isCopyMode, progress))
@@ -79,7 +84,12 @@ namespace FileOrganizer
                 
                 if (!_currentPlan.Any())
                 {
+                    StatusTextBlock.Text = "No Files Found";
                     MessageBox.Show("No files found or no actions needed.", "Analysis Complete", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                else
+                {
+                    StatusTextBlock.Text = "Analysis Complete";
                 }
             }
             catch (Exception ex)
@@ -89,7 +99,6 @@ namespace FileOrganizer
             finally
             {
                 AnalyzeButton.IsEnabled = true;
-                ActionProgressBar.Visibility = Visibility.Collapsed;
             }
         }
 
@@ -104,15 +113,21 @@ namespace FileOrganizer
                 ExecuteButton.IsEnabled = false;
                 AnalyzeButton.IsEnabled = false;
                 ActionProgressBar.Value = 0;
+                StatusTextBlock.Text = "Executing Plan...";
                 ActionProgressBar.Visibility = Visibility.Visible;
+                ProgressLabelText.Visibility = Visibility.Visible;
+                ProgressPercentText.Visibility = Visibility.Visible;
+                ProgressPercentText.Text = "0%";
 
                 var progress = new Progress<int>(percent => 
                 {
                     ActionProgressBar.Value = percent;
+                    ProgressPercentText.Text = $"{percent}%";
                 });
 
                 await Task.Run(() => _executionEngine.Execute(_currentPlan.ToList(), isCopyMode, progress));
 
+                StatusTextBlock.Text = "Execution Complete";
                 MessageBox.Show("Task Complete.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
                 ClearPlan();
             }
@@ -124,7 +139,6 @@ namespace FileOrganizer
             }
             finally
             {
-                ActionProgressBar.Visibility = Visibility.Collapsed;
             }
         }
 
@@ -133,6 +147,15 @@ namespace FileOrganizer
             _currentPlan.Clear();
             InstructionsListView.ItemsSource = null;
             ExecuteButton.IsEnabled = false;
+            StatusTextBlock.Text = "Pending Analysis";
+            ActionProgressBar.Visibility = Visibility.Collapsed;
+            ProgressLabelText.Visibility = Visibility.Collapsed;
+            ProgressPercentText.Visibility = Visibility.Collapsed;
+        }
+
+        private void CloseButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
         }
     }
 }
