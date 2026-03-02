@@ -11,7 +11,7 @@ namespace FileOrganizer.Engines
         {
             try
             {
-                string extension = Path.GetExtension(filepath)?.ToLowerInvariant();
+                string? extension = Path.GetExtension(filepath)?.ToLowerInvariant();
 
                 if (extension == ".epub" || extension == ".mobi")
                 {
@@ -20,7 +20,7 @@ namespace FileOrganizer.Engines
 
                 if (extension == ".pdf")
                 {
-                    using (PdfDocument document = PdfReader.Open(filepath, PdfDocumentOpenMode.InformationOnly))
+                    using (PdfDocument document = PdfReader.Open(filepath, PdfDocumentOpenMode.Import))
                     {
                         if (document.PageCount > 30)
                         {

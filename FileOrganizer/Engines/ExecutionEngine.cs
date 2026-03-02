@@ -6,14 +6,14 @@ namespace FileOrganizer.Engines
 {
     public class ExecutionEngine
     {
-        public void Execute(List<FileTransferInstruction> instructions, bool isCopyMode = false, IProgress<int> progress = null)
+        public void Execute(List<FileTransferInstruction> instructions, bool isCopyMode = false, IProgress<int>? progress = null)
         {
             int totalInstructions = instructions.Count;
             int processed = 0;
 
             foreach (var instruction in instructions)
             {
-                string destDir = Path.GetDirectoryName(instruction.DestinationPath);
+                string? destDir = Path.GetDirectoryName(instruction.DestinationPath);
                 if (!string.IsNullOrEmpty(destDir) && !Directory.Exists(destDir))
                 {
                     Directory.CreateDirectory(destDir);

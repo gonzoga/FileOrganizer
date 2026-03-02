@@ -30,14 +30,14 @@ namespace FileOrganizer.Engines
 
         public string GetTargetFolder(string filepath)
         {
-            string extension = Path.GetExtension(filepath);
+            string? extension = Path.GetExtension(filepath);
             
             if (string.IsNullOrEmpty(extension))
                 return "Other";
 
-            if (ExtensionMap.TryGetValue(extension, out string folder))
+            if (ExtensionMap.TryGetValue(extension, out string? folder))
             {
-                return folder;
+                return folder ?? "Other";
             }
 
             return "Other";

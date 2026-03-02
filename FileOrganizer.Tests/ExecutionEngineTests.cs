@@ -158,8 +158,8 @@ namespace FileOrganizer.Tests
 
         public void Dispose()
         {
-            string baseDir = Directory.GetParent(_sourceDir).FullName;
-            if (Directory.Exists(baseDir))
+            string? baseDir = Directory.GetParent(_sourceDir)?.FullName;
+            if (baseDir != null && Directory.Exists(baseDir))
             {
                 Directory.Delete(baseDir, true);
             }

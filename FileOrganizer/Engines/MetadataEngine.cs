@@ -78,8 +78,8 @@ namespace FileOrganizer.Engines
 
                 if (ifd0Directory != null)
                 {
-                    string make = ifd0Directory.GetString(ExifDirectoryBase.TagMake);
-                    string model = ifd0Directory.GetString(ExifDirectoryBase.TagModel);
+                    string? make = ifd0Directory.GetString(ExifDirectoryBase.TagMake);
+                    string? model = ifd0Directory.GetString(ExifDirectoryBase.TagModel);
 
                     if (!string.IsNullOrWhiteSpace(model))
                         return SanitizeForPath(model.Trim());

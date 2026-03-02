@@ -4,9 +4,7 @@ A simple, fast, and strict C# Windows Desktop utility for automatically organizi
 
 ## Screenshots
 
-*(Take screenshots of the app and save them in the `docs` folder to have them appear here!)*
-
-![Main Window](docs/screenshot_main.png)
+![Main Window](docs/Screenshot_main.png)
 ![Analysis Plan](docs/screenshot_analysis.png)
 
 ## Overview
