@@ -2,15 +2,22 @@
 
 A simple, fast, and strict C# Windows Desktop utility for automatically organizing local folders.
 
+## Screenshots
+
+*(Take screenshots of the app and save them in the `docs` folder to have them appear here!)*
+
+![Main Window](docs/screenshot_main.png)
+![Analysis Plan](docs/screenshot_analysis.png)
+
 ## Overview
 
 Built with Windows Presentation Foundation (WPF) with Test-Driven Development (TDD), the FileOrganizer utility analyzes a source directory and intelligently maps its contents to sub-folders based on extension categories.
 
 It handles complex routing:
 
-- **Pictures** (`.jpg`, `.png`, etc.)
+- **Pictures** (`.jpg`, `.png`, etc.) *— Automatically sub-sorted by **Camera Make/Model** using EXIF data.*
 - **Movies** (`.mp4`, `.mkv`, etc.)
-- **Audio** (`.mp3`, `.wav`, etc.)
+- **Audio** (`.mp3`, `.wav`, etc.) *— Automatically sub-sorted by **Artist** using ID3 tags.*
 - **Documents** (`.doc`, `.pdf`*, etc.)
 - **Archives** (`.zip`, `.rar`, etc.)
 - **Executables** (`.exe`, `.msi`, etc.)
