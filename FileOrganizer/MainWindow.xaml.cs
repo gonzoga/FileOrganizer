@@ -68,6 +68,9 @@ namespace FileOrganizer
                 ProgressPercentText.Visibility = Visibility.Visible;
                 ProgressPercentText.Text = "0";
                 
+                LoadingOverlay.Visibility = Visibility.Visible;
+                InstructionsListView.IsEnabled = false;
+                
                 _currentPlan.Clear();
                 InstructionsListView.ItemsSource = _currentPlan;
 
@@ -99,6 +102,8 @@ namespace FileOrganizer
             }
             finally
             {
+                LoadingOverlay.Visibility = Visibility.Collapsed;
+                InstructionsListView.IsEnabled = true;
                 AnalyzeButton.IsEnabled = true;
                 ActionProgressBar.IsIndeterminate = false;
                 ProgressLabelText.Text = "Progress";

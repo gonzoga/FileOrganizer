@@ -16,6 +16,7 @@ namespace FileOrganizer.Engines
             { ".avi", "Movies" }, { ".wmv", "Movies" },
             // Audio
             { ".mp3", "Audio" }, { ".wav", "Audio" }, { ".flac", "Audio" }, { ".aac", "Audio" },
+            { ".wma", "Audio" }, { ".m4a", "Audio" }, { ".ogg", "Audio" }, { ".m4b", "Audio" },
             // Documents
             { ".doc", "Documents" }, { ".docx", "Documents" }, { ".txt", "Documents" },
             { ".rtf", "Documents" }, { ".xlsx", "Documents" }, { ".csv", "Documents" },

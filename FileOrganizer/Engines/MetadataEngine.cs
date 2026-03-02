@@ -37,7 +37,7 @@ namespace FileOrganizer.Engines
 
         private bool IsAudioExtension(string ext)
         {
-            return ext == ".mp3" || ext == ".wav" || ext == ".flac" || ext == ".m4a" || ext == ".aac" || ext == ".wma";
+            return ext == ".mp3" || ext == ".wav" || ext == ".flac" || ext == ".m4a" || ext == ".aac" || ext == ".wma" || ext == ".ogg" || ext == ".m4b";
         }
 
         private string GetAudioSubFolder(string filePath)
