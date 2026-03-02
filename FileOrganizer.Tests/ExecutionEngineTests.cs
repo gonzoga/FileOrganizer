@@ -106,6 +106,56 @@ namespace FileOrganizer.Tests
             Assert.Equal("new_dummy", File.ReadAllText(destFile));
         }
 
+        [Fact]
+        public void Execute_CollisionDuringExecution_SkipsOlderSource()
+        {
+            string sourceFile = Path.Combine(_sourceDir, "collide.txt");
+            File.WriteAllText(sourceFile, "old_dummy");
+            File.SetLastWriteTimeUtc(sourceFile, DateTime.UtcNow.AddMinutes(-10));
+
+            string destDirSub = Path.Combine(_destDir, "Documents");
+            Directory.CreateDirectory(destDirSub);
+            string destFile = Path.Combine(destDirSub, "collide.txt");
+            File.WriteAllText(destFile, "new_dummy");
+            File.SetLastWriteTimeUtc(destFile, DateTime.UtcNow.AddMinutes(10));
+
+            var instructions = new List<FileTransferInstruction>
+            {
+                new FileTransferInstruction { SourcePath = sourceFile, DestinationPath = destFile, ActionType = ActionType.Move } // Move, but destination exists
+            };
+
+            _executionEngine.Execute(instructions);
+
+            // Source shouldn't be moved because its dest is newer
+            Assert.True(File.Exists(sourceFile));
+            Assert.Equal("new_dummy", File.ReadAllText(destFile));
+        }
+
+        [Fact]
+        public void Execute_CollisionDuringExecution_OverwritesOlderDest()
+        {
+            string sourceFile = Path.Combine(_sourceDir, "collide2.txt");
+            File.WriteAllText(sourceFile, "new_dummy");
+            File.SetLastWriteTimeUtc(sourceFile, DateTime.UtcNow.AddMinutes(10));
+
+            string destDirSub = Path.Combine(_destDir, "Documents");
+            Directory.CreateDirectory(destDirSub);
+            string destFile = Path.Combine(destDirSub, "collide2.txt");
+            File.WriteAllText(destFile, "old_dummy");
+            File.SetLastWriteTimeUtc(destFile, DateTime.UtcNow.AddMinutes(-10));
+
+            var instructions = new List<FileTransferInstruction>
+            {
+                new FileTransferInstruction { SourcePath = sourceFile, DestinationPath = destFile, ActionType = ActionType.Move } // Move, despite destination existing
+            };
+
+            _executionEngine.Execute(instructions);
+
+            // Source should be moved
+            Assert.False(File.Exists(sourceFile));
+            Assert.Equal("new_dummy", File.ReadAllText(destFile));
+        }
+
         public void Dispose()
         {
             string baseDir = Directory.GetParent(_sourceDir).FullName;

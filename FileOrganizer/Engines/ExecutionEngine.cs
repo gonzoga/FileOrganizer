@@ -19,26 +19,34 @@ namespace FileOrganizer.Engines
                     Directory.CreateDirectory(destDir);
                 }
 
-                if (instruction.ActionType == ActionType.Copy)
+                bool isCopyOp = isCopyMode || instruction.ActionType == ActionType.Copy;
+                
+                if (File.Exists(instruction.DestinationPath))
                 {
-                    File.Copy(instruction.SourcePath, instruction.DestinationPath, overwrite: false);
-                }
-                else if (instruction.ActionType == ActionType.Move)
-                {
-                    File.Move(instruction.SourcePath, instruction.DestinationPath);
-                }
-                else if (instruction.ActionType == ActionType.Overwrite)
-                {
-                    if (isCopyMode)
+                    DateTime sourceTime = File.GetLastWriteTimeUtc(instruction.SourcePath);
+                    DateTime destTime = File.GetLastWriteTimeUtc(instruction.DestinationPath);
+
+                    if (sourceTime > destTime || instruction.ActionType == ActionType.Overwrite)
                     {
-                        File.Copy(instruction.SourcePath, instruction.DestinationPath, overwrite: true);
+                        if (isCopyOp)
+                        {
+                            File.Copy(instruction.SourcePath, instruction.DestinationPath, overwrite: true);
+                        }
+                        else
+                        {
+                            File.Delete(instruction.DestinationPath);
+                            File.Move(instruction.SourcePath, instruction.DestinationPath);
+                        }
+                    }
+                }
+                else
+                {
+                    if (isCopyOp)
+                    {
+                        File.Copy(instruction.SourcePath, instruction.DestinationPath, overwrite: false);
                     }
                     else
                     {
-                        if (File.Exists(instruction.DestinationPath))
-                        {
-                            File.Delete(instruction.DestinationPath);
-                        }
                         File.Move(instruction.SourcePath, instruction.DestinationPath);
                     }
                 }
