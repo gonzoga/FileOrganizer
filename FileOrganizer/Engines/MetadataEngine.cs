@@ -3,6 +3,8 @@ using System.IO;
 using System.Linq;
 using MetadataExtractor;
 using MetadataExtractor.Formats.Exif;
+using MetadataExtractor.Formats.Jpeg;
+using MetadataExtractor.Formats.Png;
 
 namespace FileOrganizer.Engines
 {
@@ -74,8 +76,9 @@ namespace FileOrganizer.Engines
             try
             {
                 var directories = ImageMetadataReader.ReadMetadata(filePath);
+                
+                // 1. Try to find EXIF Camera Data first
                 var ifd0Directory = directories.OfType<ExifIfd0Directory>().FirstOrDefault();
-
                 if (ifd0Directory != null)
                 {
                     string? make = ifd0Directory.GetString(ExifDirectoryBase.TagMake);
@@ -87,11 +90,41 @@ namespace FileOrganizer.Engines
                     if (!string.IsNullOrWhiteSpace(make))
                         return SanitizeForPath(make.Trim());
                 }
+
+                // 2. If no EXIF data, check image dimensions to heuristic sort
+                int width = 0;
+                int height = 0;
+
+                // Check JPEG dimensions
+                var jpegDir = directories.OfType<JpegDirectory>().FirstOrDefault();
+                if (jpegDir != null)
+                {
+                    width = jpegDir.GetInt32(JpegDirectory.TagImageWidth);
+                    height = jpegDir.GetInt32(JpegDirectory.TagImageHeight);
+                }
+                else
+                {
+                    // Check PNG dimensions
+                    var pngDir = directories.OfType<PngDirectory>().FirstOrDefault();
+                    if (pngDir != null)
+                    {
+                        width = pngDir.GetInt32(PngDirectory.TagImageWidth);
+                        height = pngDir.GetInt32(PngDirectory.TagImageHeight);
+                    }
+                }
+
+                if (width > 0 && height > 0)
+                {
+                    if (width < 512 && height < 512)
+                    {
+                        return "Icons & Graphics";
+                    }
+                }
             }
             catch (Exception)
             {
             }
-            return "Unknown Camera";
+            return "Unsorted Photos";
         }
 
         private string SanitizeForPath(string folderName)

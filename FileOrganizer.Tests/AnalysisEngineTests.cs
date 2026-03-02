@@ -35,7 +35,7 @@ namespace FileOrganizer.Tests
             Assert.Single(instructions);
             var instruction = instructions.First();
             Assert.Equal(sourceFile, instruction.SourcePath);
-            Assert.Equal(Path.Combine(_destDir, "Pictures", "Unknown Camera", "test.jpg"), instruction.DestinationPath);
+            Assert.Equal(Path.Combine(_destDir, "Pictures", "Unsorted Photos", "test.jpg"), instruction.DestinationPath);
             Assert.Equal(ActionType.Move, instruction.ActionType);
         }
 
@@ -74,7 +74,7 @@ namespace FileOrganizer.Tests
             File.WriteAllText(sourceFile, "dummy_new");
             File.SetLastWriteTime(sourceFile, DateTime.Now.AddMinutes(10));
 
-            string destFolder = Path.Combine(_destDir, "Pictures", "Unknown Camera");
+            string destFolder = Path.Combine(_destDir, "Pictures", "Unsorted Photos");
             Directory.CreateDirectory(destFolder);
             string destFile = Path.Combine(destFolder, "test.jpg");
             File.WriteAllText(destFile, "dummy_old");
@@ -93,7 +93,7 @@ namespace FileOrganizer.Tests
             File.WriteAllText(sourceFile, "dummy_old");
             File.SetLastWriteTime(sourceFile, DateTime.Now.AddMinutes(-10));
 
-            string destFolder = Path.Combine(_destDir, "Pictures", "Unknown Camera");
+            string destFolder = Path.Combine(_destDir, "Pictures", "Unsorted Photos");
             Directory.CreateDirectory(destFolder);
             string destFile = Path.Combine(destFolder, "test.jpg");
             File.WriteAllText(destFile, "dummy_new");
