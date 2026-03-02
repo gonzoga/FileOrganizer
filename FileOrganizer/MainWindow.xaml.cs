@@ -4,6 +4,7 @@ using System.Windows;
 using Microsoft.Win32;
 using FileOrganizer.Models;
 using FileOrganizer.Engines;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -11,7 +12,7 @@ namespace FileOrganizer
 {
     public partial class MainWindow : Window
     {
-        private List<FileTransferInstruction> _currentPlan = new List<FileTransferInstruction>();
+        private ObservableCollection<FileTransferInstruction> _currentPlan = new ObservableCollection<FileTransferInstruction>();
         private readonly AnalysisEngine _analysisEngine;
         private readonly ExecutionEngine _executionEngine;
 
@@ -60,16 +61,20 @@ namespace FileOrganizer
                 ExecuteButton.IsEnabled = false;
                 ActionProgressBar.Value = 0;
                 ActionProgressBar.Visibility = Visibility.Visible;
-                InstructionsDataGrid.ItemsSource = null;
+                
+                _currentPlan.Clear();
+                InstructionsListView.ItemsSource = _currentPlan;
 
                 var progress = new Progress<int>(percent => 
                 {
                     ActionProgressBar.Value = percent;
                 });
 
-                _currentPlan = await Task.Run(() => _analysisEngine.Analyze(sourcePath, destPath, isCopyMode, progress));
+                await foreach (var instruction in _analysisEngine.AnalyzeAsync(sourcePath, destPath, isCopyMode, progress))
+                {
+                    _currentPlan.Add(instruction);
+                }
                 
-                InstructionsDataGrid.ItemsSource = _currentPlan;
                 ExecuteButton.IsEnabled = _currentPlan.Any();
                 
                 if (!_currentPlan.Any())
@@ -106,7 +111,7 @@ namespace FileOrganizer
                     ActionProgressBar.Value = percent;
                 });
 
-                await Task.Run(() => _executionEngine.Execute(_currentPlan, isCopyMode, progress));
+                await Task.Run(() => _executionEngine.Execute(_currentPlan.ToList(), isCopyMode, progress));
 
                 MessageBox.Show("Task Complete.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
                 ClearPlan();
@@ -126,7 +131,7 @@ namespace FileOrganizer
         private void ClearPlan()
         {
             _currentPlan.Clear();
-            InstructionsDataGrid.ItemsSource = null;
+            InstructionsListView.ItemsSource = null;
             ExecuteButton.IsEnabled = false;
         }
     }

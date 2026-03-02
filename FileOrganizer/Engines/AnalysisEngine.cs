@@ -16,9 +16,8 @@ namespace FileOrganizer.Engines
             _pdfHeuristic = pdfHeuristic;
         }
 
-        public List<FileTransferInstruction> Analyze(string sourceDir, string destDir, bool isCopyMode, IProgress<int> progress = null)
+        public async IAsyncEnumerable<FileTransferInstruction> AnalyzeAsync(string sourceDir, string destDir, bool isCopyMode, IProgress<int> progress = null)
         {
-            var instructions = new List<FileTransferInstruction>();
             var files = Directory.GetFiles(sourceDir, "*.*", SearchOption.AllDirectories);
             int totalFiles = files.Length;
             int processed = 0;
@@ -47,23 +46,23 @@ namespace FileOrganizer.Engines
                     // If source is newer, overwrite
                     if (sourceTime > destTime)
                     {
-                        instructions.Add(new FileTransferInstruction
+                        yield return new FileTransferInstruction
                         {
                             SourcePath = file,
                             DestinationPath = destFilePath,
                             ActionType = ActionType.Overwrite
-                        });
+                        };
                     }
                     // Else skip
                 }
                 else
                 {
-                    instructions.Add(new FileTransferInstruction
+                    yield return new FileTransferInstruction
                     {
                         SourcePath = file,
                         DestinationPath = destFilePath,
                         ActionType = isCopyMode ? ActionType.Copy : ActionType.Move
-                    });
+                    };
                 }
 
                 processed++;
@@ -72,8 +71,6 @@ namespace FileOrganizer.Engines
                     progress.Report((int)((processed / (double)totalFiles) * 100));
                 }
             }
-
-            return instructions;
         }
     }
 }

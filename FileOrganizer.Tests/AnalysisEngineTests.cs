@@ -25,12 +25,16 @@ namespace FileOrganizer.Tests
         }
 
         [Fact]
-        public void Analyze_StandardTransfer_CreatesInstruction()
+        public async Task Analyze_StandardTransfer_CreatesInstruction()
         {
             string sourceFile = Path.Combine(_sourceDir, "test.jpg");
             File.WriteAllText(sourceFile, "dummy");
 
-            var instructions = _analysisEngine.Analyze(_sourceDir, _destDir, isCopyMode: false);
+            var instructions = new List<FileTransferInstruction>();
+            await foreach (var item in _analysisEngine.AnalyzeAsync(_sourceDir, _destDir, isCopyMode: false))
+            {
+                instructions.Add(item);
+            }
 
             Assert.Single(instructions);
             var instruction = instructions.First();
@@ -40,19 +44,23 @@ namespace FileOrganizer.Tests
         }
 
         [Fact]
-        public void Analyze_StandardTransferCopyMode_CreatesCopyInstruction()
+        public async Task Analyze_StandardTransferCopyMode_CreatesCopyInstruction()
         {
             string sourceFile = Path.Combine(_sourceDir, "test.jpg");
             File.WriteAllText(sourceFile, "dummy");
 
-            var instructions = _analysisEngine.Analyze(_sourceDir, _destDir, isCopyMode: true);
+            var instructions = new List<FileTransferInstruction>();
+            await foreach (var item in _analysisEngine.AnalyzeAsync(_sourceDir, _destDir, isCopyMode: true))
+            {
+                instructions.Add(item);
+            }
 
             Assert.Single(instructions);
             Assert.Equal(ActionType.Copy, instructions.First().ActionType);
         }
 
         [Fact]
-        public void Analyze_CollisionSourceNewer_CreatesOverwriteInstruction()
+        public async Task Analyze_CollisionSourceNewer_CreatesOverwriteInstruction()
         {
             string sourceFile = Path.Combine(_sourceDir, "test.jpg");
             File.WriteAllText(sourceFile, "dummy_new");
@@ -64,14 +72,18 @@ namespace FileOrganizer.Tests
             File.WriteAllText(destFile, "dummy_old");
             File.SetLastWriteTime(destFile, DateTime.Now.AddMinutes(-10));
 
-            var instructions = _analysisEngine.Analyze(_sourceDir, _destDir, isCopyMode: false);
+            var instructions = new List<FileTransferInstruction>();
+            await foreach (var item in _analysisEngine.AnalyzeAsync(_sourceDir, _destDir, isCopyMode: false))
+            {
+                instructions.Add(item);
+            }
 
             Assert.Single(instructions);
             Assert.Equal(ActionType.Overwrite, instructions.First().ActionType);
         }
 
         [Fact]
-        public void Analyze_CollisionDestNewer_SkipsInstruction()
+        public async Task Analyze_CollisionDestNewer_SkipsInstruction()
         {
             string sourceFile = Path.Combine(_sourceDir, "test.jpg");
             File.WriteAllText(sourceFile, "dummy_old");
@@ -83,7 +95,11 @@ namespace FileOrganizer.Tests
             File.WriteAllText(destFile, "dummy_new");
             File.SetLastWriteTime(destFile, DateTime.Now.AddMinutes(10));
 
-            var instructions = _analysisEngine.Analyze(_sourceDir, _destDir, isCopyMode: false);
+            var instructions = new List<FileTransferInstruction>();
+            await foreach (var item in _analysisEngine.AnalyzeAsync(_sourceDir, _destDir, isCopyMode: false))
+            {
+                instructions.Add(item);
+            }
 
             Assert.Empty(instructions);
         }

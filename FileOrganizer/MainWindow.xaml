@@ -28,9 +28,17 @@
 
         <Button x:Name="AnalyzeButton" Content="Analyze (Generate Plan)" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,0,0,10" Click="AnalyzeButton_Click" Height="30"/>
 
-        <DataGrid x:Name="InstructionsDataGrid" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,0,0,10" AutoGenerateColumns="True" IsReadOnly="True" />
+        <ProgressBar x:Name="ActionProgressBar" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" Height="20" Margin="0,0,0,10" Visibility="Collapsed" Minimum="0" Maximum="100"/>
 
-        <ProgressBar x:Name="ActionProgressBar" Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" Height="20" Margin="0,0,0,10" Visibility="Collapsed" Minimum="0" Maximum="100"/>
+        <ListView x:Name="InstructionsListView" Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,0,0,10" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="Source Path" DisplayMemberBinding="{Binding SourcePath}" Width="350"/>
+                    <GridViewColumn Header="Destination Path" DisplayMemberBinding="{Binding DestinationPath}" Width="350"/>
+                    <GridViewColumn Header="Action" DisplayMemberBinding="{Binding ActionType}" Width="100"/>
+                </GridView>
+            </ListView.View>
+        </ListView>
 
         <Button x:Name="ExecuteButton" Content="Execute Plan" Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" Height="40" Click="ExecuteButton_Click" IsEnabled="False" FontWeight="Bold"/>
 
