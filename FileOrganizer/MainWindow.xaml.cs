@@ -19,7 +19,7 @@ namespace FileOrganizer
         public MainWindow()
         {
             InitializeComponent();
-            _analysisEngine = new AnalysisEngine(new RoutingEngine(), new PdfHeuristic());
+            _analysisEngine = new AnalysisEngine(new RoutingEngine(), new PdfHeuristic(), new MetadataEngine());
             _executionEngine = new ExecutionEngine();
         }
 
@@ -62,17 +62,18 @@ namespace FileOrganizer
                 ActionProgressBar.Value = 0;
                 StatusTextBlock.Text = "Analyzing Files...";
                 ActionProgressBar.Visibility = Visibility.Visible;
+                ActionProgressBar.IsIndeterminate = true;
                 ProgressLabelText.Visibility = Visibility.Visible;
+                ProgressLabelText.Text = "Files Scanned:";
                 ProgressPercentText.Visibility = Visibility.Visible;
-                ProgressPercentText.Text = "0%";
+                ProgressPercentText.Text = "0";
                 
                 _currentPlan.Clear();
                 InstructionsListView.ItemsSource = _currentPlan;
 
-                var progress = new Progress<int>(percent => 
+                var progress = new Progress<int>(count => 
                 {
-                    ActionProgressBar.Value = percent;
-                    ProgressPercentText.Text = $"{percent}%";
+                    ProgressPercentText.Text = count.ToString("N0");
                 });
 
                 await foreach (var instruction in _analysisEngine.AnalyzeAsync(sourcePath, destPath, isCopyMode, progress))
@@ -99,6 +100,8 @@ namespace FileOrganizer
             finally
             {
                 AnalyzeButton.IsEnabled = true;
+                ActionProgressBar.IsIndeterminate = false;
+                ProgressLabelText.Text = "Progress";
             }
         }
 

@@ -9,17 +9,18 @@ namespace FileOrganizer.Engines
     {
         private readonly RoutingEngine _routingEngine;
         private readonly PdfHeuristic _pdfHeuristic;
+        private readonly MetadataEngine _metadataEngine;
 
-        public AnalysisEngine(RoutingEngine routingEngine, PdfHeuristic pdfHeuristic)
+        public AnalysisEngine(RoutingEngine routingEngine, PdfHeuristic pdfHeuristic, MetadataEngine metadataEngine)
         {
             _routingEngine = routingEngine;
             _pdfHeuristic = pdfHeuristic;
+            _metadataEngine = metadataEngine;
         }
 
         public async IAsyncEnumerable<FileTransferInstruction> AnalyzeAsync(string sourceDir, string destDir, bool isCopyMode, IProgress<int> progress = null)
         {
-            var files = Directory.GetFiles(sourceDir, "*.*", SearchOption.AllDirectories);
-            int totalFiles = files.Length;
+            var files = Directory.EnumerateFiles(sourceDir, "*.*", SearchOption.AllDirectories);
             int processed = 0;
 
             foreach (var file in files)
@@ -36,7 +37,17 @@ namespace FileOrganizer.Engines
                     targetFolder = _routingEngine.GetTargetFolder(file);
                 }
 
-                string destFilePath = Path.Combine(destDir, targetFolder, Path.GetFileName(file));
+                string subFolder = _metadataEngine.GetSubFolder(file);
+                string destFilePath;
+
+                if (!string.IsNullOrEmpty(subFolder))
+                {
+                    destFilePath = Path.Combine(destDir, targetFolder, subFolder, Path.GetFileName(file));
+                }
+                else
+                {
+                    destFilePath = Path.Combine(destDir, targetFolder, Path.GetFileName(file));
+                }
 
                 if (File.Exists(destFilePath))
                 {
@@ -66,9 +77,9 @@ namespace FileOrganizer.Engines
                 }
 
                 processed++;
-                if (progress != null && totalFiles > 0)
+                if (progress != null)
                 {
-                    progress.Report((int)((processed / (double)totalFiles) * 100));
+                    progress.Report(processed);
                 }
                 
                 // Yield to the UI thread every batch of files to ensure the progress bar updates smoothly

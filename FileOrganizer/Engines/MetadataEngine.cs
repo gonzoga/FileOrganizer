@@ -1,0 +1,107 @@
+using System;
+using System.IO;
+using System.Linq;
+using MetadataExtractor;
+using MetadataExtractor.Formats.Exif;
+
+namespace FileOrganizer.Engines
+{
+    public class MetadataEngine
+    {
+        public string GetSubFolder(string filePath)
+        {
+            if (string.IsNullOrWhiteSpace(filePath) || !File.Exists(filePath))
+                return "";
+
+            string extension = Path.GetExtension(filePath)?.ToLowerInvariant() ?? "";
+
+            try
+            {
+                if (IsAudioExtension(extension))
+                {
+                    return GetAudioSubFolder(filePath);
+                }
+                
+                if (IsImageExtension(extension))
+                {
+                    return GetImageSubFolder(filePath);
+                }
+            }
+            catch (Exception)
+            {
+                // Silently swallow parsing errors (e.g. corrupt tags) to gracefully fallback to root category
+            }
+
+            return "";
+        }
+
+        private bool IsAudioExtension(string ext)
+        {
+            return ext == ".mp3" || ext == ".wav" || ext == ".flac" || ext == ".m4a" || ext == ".aac" || ext == ".wma";
+        }
+
+        private string GetAudioSubFolder(string filePath)
+        {
+            try
+            {
+                using (var tfile = TagLib.File.Create(filePath))
+                {
+                    string artist = tfile.Tag.FirstPerformer ?? tfile.Tag.FirstAlbumArtist ?? "";
+                    
+                    if (!string.IsNullOrWhiteSpace(artist))
+                    {
+                        // Clean artist name of invalid path characters
+                        return SanitizeForPath(artist);
+                    }
+                }
+            }
+            catch (TagLib.UnsupportedFormatException)
+            {
+            }
+            catch (TagLib.CorruptFileException)
+            {
+            }
+            return "Unknown Artist";
+        }
+
+        private bool IsImageExtension(string ext)
+        {
+            return ext == ".jpg" || ext == ".jpeg" || ext == ".png" || ext == ".cr2" || ext == ".nef" || ext == ".arw";
+        }
+
+        private string GetImageSubFolder(string filePath)
+        {
+            try
+            {
+                var directories = ImageMetadataReader.ReadMetadata(filePath);
+                var ifd0Directory = directories.OfType<ExifIfd0Directory>().FirstOrDefault();
+
+                if (ifd0Directory != null)
+                {
+                    string make = ifd0Directory.GetString(ExifDirectoryBase.TagMake);
+                    string model = ifd0Directory.GetString(ExifDirectoryBase.TagModel);
+
+                    if (!string.IsNullOrWhiteSpace(model))
+                        return SanitizeForPath(model.Trim());
+                        
+                    if (!string.IsNullOrWhiteSpace(make))
+                        return SanitizeForPath(make.Trim());
+                }
+            }
+            catch (Exception)
+            {
+            }
+            return "Unknown Camera";
+        }
+
+        private string SanitizeForPath(string folderName)
+        {
+            folderName = folderName.Trim();
+            foreach (char c in Path.GetInvalidFileNameChars())
+            {
+                folderName = folderName.Replace(c.ToString(), "");
+            }
+            return folderName.Length > 0 ? folderName : "Unknown";
+        }
+    }
+}
