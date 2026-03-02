@@ -36,8 +36,7 @@ namespace FileOrganizer.Engines
                     targetFolder = _routingEngine.GetTargetFolder(file);
                 }
 
-                string relativePath = Path.GetRelativePath(sourceDir, file);
-                string destFilePath = Path.Combine(destDir, targetFolder, relativePath);
+                string destFilePath = Path.Combine(destDir, targetFolder, Path.GetFileName(file));
 
                 if (File.Exists(destFilePath))
                 {
@@ -70,6 +69,12 @@ namespace FileOrganizer.Engines
                 if (progress != null && totalFiles > 0)
                 {
                     progress.Report((int)((processed / (double)totalFiles) * 100));
+                }
+                
+                // Yield to the UI thread every batch of files to ensure the progress bar updates smoothly
+                if (processed % 10 == 0)
+                {
+                    await System.Threading.Tasks.Task.Yield();
                 }
             }
         }

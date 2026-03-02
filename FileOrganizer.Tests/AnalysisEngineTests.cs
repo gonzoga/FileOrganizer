@@ -44,7 +44,7 @@ namespace FileOrganizer.Tests
         }
 
         [Fact]
-        public async Task Analyze_NestedFile_PreservesRelativePath()
+        public async Task Analyze_NestedFile_FlattensPathToCategoryRoot()
         {
             string subDir = Path.Combine(_sourceDir, "FolderA", "FolderB");
             Directory.CreateDirectory(subDir);
@@ -59,9 +59,8 @@ namespace FileOrganizer.Tests
 
             Assert.Single(instructions);
             var instruction = instructions.First();
-            string expectedRelative = Path.Combine("FolderA", "FolderB", "nested.mp4");
             Assert.Equal(ActionType.Move, instruction.ActionType);
-            Assert.Equal(Path.Combine(_destDir, "Movies", expectedRelative), instruction.DestinationPath);
+            Assert.Equal(Path.Combine(_destDir, "Movies", "nested.mp4"), instruction.DestinationPath);
         }
 
         [Fact]
