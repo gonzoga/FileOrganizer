@@ -184,8 +184,17 @@
                     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                         <!-- Simple Pure XAML Spinner (Animating a RenderTransform) -->
                         <Grid Width="50" Height="50" Margin="0,0,0,15" HorizontalAlignment="Center">
+                            <Grid.Triggers>
+                                <EventTrigger RoutedEvent="Loaded">
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)" From="0" To="360" Duration="0:0:1.5" RepeatBehavior="Forever"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </EventTrigger>
+                            </Grid.Triggers>
                             <Grid.RenderTransform>
-                                <RotateTransform x:Name="SpinnerTransform" CenterX="25" CenterY="25"/>
+                                <RotateTransform CenterX="25" CenterY="25"/>
                             </Grid.RenderTransform>
                             <Ellipse Width="50" Height="50" Stroke="#4A78C2" StrokeThickness="4" StrokeDashArray="3 1" Fill="Transparent"/>
                         </Grid>

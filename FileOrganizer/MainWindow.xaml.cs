@@ -59,14 +59,10 @@ namespace FileOrganizer
 
                 AnalyzeButton.IsEnabled = false;
                 ExecuteButton.IsEnabled = false;
-                ActionProgressBar.Value = 0;
-                StatusTextBlock.Text = "Analyzing Files...";
-                ActionProgressBar.Visibility = Visibility.Visible;
-                ActionProgressBar.IsIndeterminate = true;
-                ProgressLabelText.Visibility = Visibility.Visible;
-                ProgressLabelText.Text = "Files Scanned:";
-                ProgressPercentText.Visibility = Visibility.Visible;
-                ProgressPercentText.Text = "0";
+                StatusTextBlock.Text = "Analysis Pending...";
+                ActionProgressBar.Visibility = Visibility.Collapsed;
+                ProgressLabelText.Visibility = Visibility.Collapsed;
+                ProgressPercentText.Visibility = Visibility.Collapsed;
                 
                 LoadingOverlay.Visibility = Visibility.Visible;
                 InstructionsListView.IsEnabled = false;
@@ -74,12 +70,9 @@ namespace FileOrganizer
                 _currentPlan.Clear();
                 InstructionsListView.ItemsSource = _currentPlan;
 
-                var progress = new Progress<int>(count => 
-                {
-                    ProgressPercentText.Text = count.ToString("N0");
-                });
+                var instructions = await Task.Run(() => _analysisEngine.Analyze(sourcePath, destPath, isCopyMode));
 
-                await foreach (var instruction in _analysisEngine.AnalyzeAsync(sourcePath, destPath, isCopyMode, progress))
+                foreach(var instruction in instructions)
                 {
                     _currentPlan.Add(instruction);
                 }
@@ -105,8 +98,6 @@ namespace FileOrganizer
                 LoadingOverlay.Visibility = Visibility.Collapsed;
                 InstructionsListView.IsEnabled = true;
                 AnalyzeButton.IsEnabled = true;
-                ActionProgressBar.IsIndeterminate = false;
-                ProgressLabelText.Text = "Progress";
             }
         }
 

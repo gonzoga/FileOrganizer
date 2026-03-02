@@ -18,10 +18,10 @@ namespace FileOrganizer.Engines
             _metadataEngine = metadataEngine;
         }
 
-        public async IAsyncEnumerable<FileTransferInstruction> AnalyzeAsync(string sourceDir, string destDir, bool isCopyMode, IProgress<int> progress = null)
+        public List<FileTransferInstruction> Analyze(string sourceDir, string destDir, bool isCopyMode)
         {
+            var instructions = new List<FileTransferInstruction>();
             var files = Directory.EnumerateFiles(sourceDir, "*.*", SearchOption.AllDirectories);
-            int processed = 0;
 
             foreach (var file in files)
             {
@@ -57,37 +57,28 @@ namespace FileOrganizer.Engines
                     // If source is newer, overwrite
                     if (sourceTime > destTime)
                     {
-                        yield return new FileTransferInstruction
+                        instructions.Add(new FileTransferInstruction
                         {
                             SourcePath = file,
                             DestinationPath = destFilePath,
                             ActionType = ActionType.Overwrite
-                        };
+                        });
                     }
                     // Else skip
                 }
                 else
                 {
-                    yield return new FileTransferInstruction
+                    instructions.Add(new FileTransferInstruction
                     {
                         SourcePath = file,
                         DestinationPath = destFilePath,
                         ActionType = isCopyMode ? ActionType.Copy : ActionType.Move
-                    };
+                    });
                 }
 
-                processed++;
-                if (progress != null)
-                {
-                    progress.Report(processed);
-                }
-                
-                // Yield to the UI thread every batch of files to ensure the progress bar updates smoothly
-                if (processed % 10 == 0)
-                {
-                    await System.Threading.Tasks.Task.Yield();
-                }
             }
+
+            return instructions;
         }
     }
 }

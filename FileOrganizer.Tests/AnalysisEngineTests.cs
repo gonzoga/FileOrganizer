@@ -25,16 +25,12 @@ namespace FileOrganizer.Tests
         }
 
         [Fact]
-        public async Task Analyze_StandardTransfer_CreatesInstruction()
+        public void Analyze_StandardTransfer_CreatesInstruction()
         {
             string sourceFile = Path.Combine(_sourceDir, "test.jpg");
             File.WriteAllText(sourceFile, "dummy");
 
-            var instructions = new List<FileTransferInstruction>();
-            await foreach (var item in _analysisEngine.AnalyzeAsync(_sourceDir, _destDir, isCopyMode: false))
-            {
-                instructions.Add(item);
-            }
+            var instructions = _analysisEngine.Analyze(_sourceDir, _destDir, isCopyMode: false);
 
             Assert.Single(instructions);
             var instruction = instructions.First();
@@ -44,18 +40,14 @@ namespace FileOrganizer.Tests
         }
 
         [Fact]
-        public async Task Analyze_NestedFile_FlattensPathToCategoryRoot()
+        public void Analyze_NestedFile_FlattensPathToCategoryRoot()
         {
             string subDir = Path.Combine(_sourceDir, "FolderA", "FolderB");
             Directory.CreateDirectory(subDir);
             string sourceFile = Path.Combine(subDir, "nested.mp4");
             File.WriteAllText(sourceFile, "dummy");
 
-            var instructions = new List<FileTransferInstruction>();
-            await foreach (var item in _analysisEngine.AnalyzeAsync(_sourceDir, _destDir, isCopyMode: false))
-            {
-                instructions.Add(item);
-            }
+            var instructions = _analysisEngine.Analyze(_sourceDir, _destDir, isCopyMode: false);
 
             Assert.Single(instructions);
             var instruction = instructions.First();
@@ -64,23 +56,19 @@ namespace FileOrganizer.Tests
         }
 
         [Fact]
-        public async Task Analyze_StandardTransferCopyMode_CreatesCopyInstruction()
+        public void Analyze_StandardTransferCopyMode_CreatesCopyInstruction()
         {
             string sourceFile = Path.Combine(_sourceDir, "test.jpg");
             File.WriteAllText(sourceFile, "dummy");
 
-            var instructions = new List<FileTransferInstruction>();
-            await foreach (var item in _analysisEngine.AnalyzeAsync(_sourceDir, _destDir, isCopyMode: true))
-            {
-                instructions.Add(item);
-            }
+            var instructions = _analysisEngine.Analyze(_sourceDir, _destDir, isCopyMode: true);
 
             Assert.Single(instructions);
             Assert.Equal(ActionType.Copy, instructions.First().ActionType);
         }
 
         [Fact]
-        public async Task Analyze_CollisionSourceNewer_CreatesOverwriteInstruction()
+        public void Analyze_CollisionSourceNewer_CreatesOverwriteInstruction()
         {
             string sourceFile = Path.Combine(_sourceDir, "test.jpg");
             File.WriteAllText(sourceFile, "dummy_new");
@@ -92,18 +80,14 @@ namespace FileOrganizer.Tests
             File.WriteAllText(destFile, "dummy_old");
             File.SetLastWriteTime(destFile, DateTime.Now.AddMinutes(-10));
 
-            var instructions = new List<FileTransferInstruction>();
-            await foreach (var item in _analysisEngine.AnalyzeAsync(_sourceDir, _destDir, isCopyMode: false))
-            {
-                instructions.Add(item);
-            }
+            var instructions = _analysisEngine.Analyze(_sourceDir, _destDir, isCopyMode: false);
 
             Assert.Single(instructions);
             Assert.Equal(ActionType.Overwrite, instructions.First().ActionType);
         }
 
         [Fact]
-        public async Task Analyze_CollisionDestNewer_SkipsInstruction()
+        public void Analyze_CollisionDestNewer_SkipsInstruction()
         {
             string sourceFile = Path.Combine(_sourceDir, "test.jpg");
             File.WriteAllText(sourceFile, "dummy_old");
@@ -115,11 +99,7 @@ namespace FileOrganizer.Tests
             File.WriteAllText(destFile, "dummy_new");
             File.SetLastWriteTime(destFile, DateTime.Now.AddMinutes(10));
 
-            var instructions = new List<FileTransferInstruction>();
-            await foreach (var item in _analysisEngine.AnalyzeAsync(_sourceDir, _destDir, isCopyMode: false))
-            {
-                instructions.Add(item);
-            }
+            var instructions = _analysisEngine.Analyze(_sourceDir, _destDir, isCopyMode: false);
 
             Assert.Empty(instructions);
         }
