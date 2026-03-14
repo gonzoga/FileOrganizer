@@ -130,10 +130,14 @@ namespace FileOrganizer.Engines
         private string SanitizeForPath(string folderName)
         {
             folderName = folderName.Trim();
+            // Remove invalid characters for a file name
             foreach (char c in Path.GetInvalidFileNameChars())
             {
                 folderName = folderName.Replace(c.ToString(), "");
             }
+            // Remove dots to prevent path traversal (e.g., ".." or ".")
+            folderName = folderName.Replace(".", "");
+
             return folderName.Length > 0 ? folderName : "Unknown";
         }
     }
