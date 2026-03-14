@@ -88,6 +88,7 @@ namespace FileOrganizer.Tests
         [InlineData("config.json", "Other")]
         [InlineData("unknown.xyz", "Other")]
         [InlineData("noextension", "Other")]
+        [InlineData("file_with_no_ext", "Other")]
         public void Route_ShouldMapOtherCorrectly(string filename, string expectedFolder)
         {
             var result = _routingEngine.GetTargetFolder(filename);
