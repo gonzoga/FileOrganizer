@@ -63,22 +63,20 @@ namespace FileOrganizer
                 ActionProgressBar.Visibility = Visibility.Collapsed;
                 ProgressLabelText.Visibility = Visibility.Collapsed;
                 ProgressPercentText.Visibility = Visibility.Collapsed;
-                
+
                 LoadingOverlay.Visibility = Visibility.Visible;
                 InstructionsListView.IsEnabled = false;
-                
+
                 _currentPlan.Clear();
                 InstructionsListView.ItemsSource = _currentPlan;
 
                 var instructions = await Task.Run(() => _analysisEngine.Analyze(sourcePath, destPath, isCopyMode));
 
-                foreach(var instruction in instructions)
-                {
-                    _currentPlan.Add(instruction);
-                }
-                
+                _currentPlan = new ObservableCollection<FileTransferInstruction>(instructions);
+                InstructionsListView.ItemsSource = _currentPlan;
+
                 ExecuteButton.IsEnabled = _currentPlan.Any();
-                
+
                 if (!_currentPlan.Any())
                 {
                     StatusTextBlock.Text = "No Files Found";
@@ -108,7 +106,7 @@ namespace FileOrganizer
             try
             {
                 bool isCopyMode = CopyModeCheckBox.IsChecked == true;
-                
+
                 ExecuteButton.IsEnabled = false;
                 AnalyzeButton.IsEnabled = false;
                 ActionProgressBar.Value = 0;
@@ -118,7 +116,7 @@ namespace FileOrganizer
                 ProgressPercentText.Visibility = Visibility.Visible;
                 ProgressPercentText.Text = "0%";
 
-                var progress = new Progress<int>(percent => 
+                var progress = new Progress<int>(percent =>
                 {
                     ActionProgressBar.Value = percent;
                     ProgressPercentText.Text = $"{percent}%";
