@@ -136,9 +136,6 @@ namespace FileOrganizer
                 ExecuteButton.IsEnabled = true;
                 AnalyzeButton.IsEnabled = true;
             }
-            finally
-            {
-            }
         }
 
         private void ClearPlan()
